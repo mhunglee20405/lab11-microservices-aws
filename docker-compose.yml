@@ -1,0 +1,97 @@
+services:
+  # User Service
+  user-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: userdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - user-db-data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+  user-service:
+    build: ./user-service
+    environment:
+      DB_HOST: user-db
+      DB_NAME: userdb
+      DB_USER: postgres
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    depends_on:
+      - user-db
+    networks:
+      - microservices-network
+
+  # Product Service
+  product-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: productdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - product-db-data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+  product-service:
+    build: ./product-service
+    environment:
+      DB_HOST: product-db
+      DB_NAME: productdb
+      DB_USER: postgres
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    depends_on:
+      - product-db
+    networks:
+      - microservices-network
+
+  # Order Service
+  order-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: orderdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+    volumes:
+      - order-db-data:/var/lib/postgresql/data
+    networks:
+      - microservices-network
+
+  order-service:
+    build: ./order-service
+    environment:
+      DB_HOST: order-db
+      DB_NAME: orderdb
+      DB_USER: postgres
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}
+      USER_SERVICE_URL: http://user-service:8000
+      PRODUCT_SERVICE_URL: http://product-service:8000
+    depends_on:
+      - order-db
+      - user-service
+      - product-service
+    networks:
+      - microservices-network
+
+  # API Gateway
+  api-gateway:
+    build: ./api-gateway
+    ports:
+      - "8080:80"
+    depends_on:
+      - user-service
+      - product-service
+      - order-service
+    networks:
+      - microservices-network
+
+volumes:
+  user-db-data:
+  product-db-data:
+  order-db-data:
+
+networks:
+  microservices-network:
+    driver: bridge

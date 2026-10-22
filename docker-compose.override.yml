@@ -1,0 +1,32 @@
+services:
+  user-service:
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ap-southeast-1
+        awslogs-group: /lab11/user-service
+        awslogs-create-group: "true"
+
+  product-service:
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ap-southeast-1
+        awslogs-group: /lab11/product-service
+        awslogs-create-group: "true"
+
+  order-service:
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ap-southeast-1
+        awslogs-group: /lab11/order-service
+        awslogs-create-group: "true"
+
+  api-gateway:
+    logging:
+      driver: awslogs
+      options:
+        awslogs-region: ap-southeast-1
+        awslogs-group: /lab11/api-gateway
+        awslogs-create-group: "true"
